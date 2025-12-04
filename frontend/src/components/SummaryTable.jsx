@@ -67,7 +67,7 @@ export function SummaryTable({ onDateClick, selectedDate, onLoaded, refreshTrigg
       <div className="w-full flex gap-3 justify-start md:justify-center px-2 md:px-0">
         
         {/* Dias da Semana Fixos */}
-        <div className="grid grid-rows-7 gap-2 md:gap-3 pr-2 select-none flex-shrink-0">
+        <div className="grid grid-rows-7 gap-2 md:gap-3 pr-2 select-none flex-shrink-0 pt-2">
           {weekDays.map((weekDay, i) => {
             return (
               <div 
@@ -87,7 +87,7 @@ export function SummaryTable({ onDateClick, selectedDate, onLoaded, refreshTrigg
           onMouseLeave={handleMouseLeave}
           onMouseUp={handleMouseUp}
           onMouseMove={handleMouseMove}
-          className="overflow-x-auto pb-4 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden cursor-grab active:cursor-grabbing"
+          className="overflow-x-auto p-2 pb-4 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden cursor-grab active:cursor-grabbing"
         >
           <div className="grid grid-rows-7 grid-flow-col gap-2 md:gap-3">
             {summaryDates.map(date => {
