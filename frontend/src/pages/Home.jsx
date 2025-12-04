@@ -8,6 +8,7 @@ import { Footer } from '../components/Footer';
 import '../lib/dayjs';
 import dayjs from 'dayjs';
 import 'dayjs/locale/pt-br';
+import { OrbitProgress } from 'react-loading-indicators';
 
 dayjs.locale('pt-br');
 
@@ -18,6 +19,18 @@ export function Home() {
   const [completedCount, setCompletedCount] = useState(0);
   const [totalCount, setTotalCount] = useState(0);
   const [isCompletionModalOpen, setIsCompletionModalOpen] = useState(false);
+  
+  const [loadingStates, setLoadingStates] = useState({
+    summary: true,
+    habitsList: true,
+    scheduledHabits: true
+  });
+
+  const handleLoaded = (component) => {
+    setLoadingStates(prev => ({ ...prev, [component]: false }));
+  };
+
+  const isLoading = Object.values(loadingStates).some(state => state);
 
   const handleDateClick = (date) => {
     setSelectedDate(date);
@@ -39,11 +52,22 @@ export function Home() {
   const percentage = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
 
   return (
-    <div className="min-h-screen bg-[#09090A] flex flex-col items-center text-white font-sans selection:bg-violet-500 selection:text-white">
-      <div className="w-full max-w-5xl px-4 py-8 md:px-6 md:py-12 flex-1">
+    <div className="min-h-screen bg-[#09090A] flex flex-col items-center text-white font-sans selection:bg-violet-500 selection:text-white relative">
+      {isLoading && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#09090A]">
+          <OrbitProgress color="#d35eff" size="medium" text="" textColor="#20017e" />
+        </div>
+      )}
+      
+      <div className={`w-full max-w-5xl px-4 py-8 md:px-6 md:py-12 flex-1 ${isLoading ? 'opacity-0' : 'opacity-100 transition-opacity duration-500'}`}>
         <Header onHabitCreated={handleHabitCreated} />
 
-        <SummaryTable key={refreshKey} onDateClick={handleDateClick} selectedDate={selectedDate} />
+        <SummaryTable 
+          key={refreshKey} 
+          onDateClick={handleDateClick} 
+          selectedDate={selectedDate} 
+          onLoaded={() => handleLoaded('summary')}
+        />
 
         {/* Layout Grid: Lista do Dia (Principal) + Sidebar (Programados) */}
         <div className="grid grid-cols-1 md:grid-cols-[1fr_320px] gap-8 md:gap-12">
@@ -71,13 +95,17 @@ export function Home() {
                 date={selectedDate} 
                 onCompletedChanged={handleCompletedChanged} 
                 onDayCompleted={() => setIsCompletionModalOpen(true)}
+                onLoaded={() => handleLoaded('habitsList')}
               />
             </div>
           </div>
 
           {/* Coluna Lateral: Hábitos Programados */}
           <div className="mt-8 md:mt-2">
-            <ScheduledHabitsList key={habitsListKey} />
+            <ScheduledHabitsList 
+              key={habitsListKey} 
+              onLoaded={() => handleLoaded('scheduledHabits')}
+            />
           </div>
 
         </div>

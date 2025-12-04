@@ -1,5 +1,18 @@
+const getApiBase = () => {
+  let url = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+  // Remove trailing slash if present
+  if (url.endsWith('/')) {
+    url = url.slice(0, -1);
+  }
+  // Append /api if not present
+  if (!url.endsWith('/api')) {
+    url += '/api';
+  }
+  return url;
+};
+
 export async function api(path, options = {}) {
-  const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+  const API_BASE = getApiBase();
   const token = localStorage.getItem('token');
   const headers = {
     'Content-Type': 'application/json',
@@ -30,9 +43,9 @@ export const Api = {
   put: (path, body) => api(path, { method: 'PUT', body: JSON.stringify(body) }),
   del: (path) => api(path, { method: 'DELETE' }),
 };
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
 
 export async function apiFetch(path, options = {}) {
+  const API_BASE = getApiBase();
   const token = localStorage.getItem('token');
   const headers = {
     'Content-Type': 'application/json',
