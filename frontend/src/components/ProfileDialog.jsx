@@ -5,7 +5,7 @@ import { apiFetch } from '../lib/api';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 
-export function ProfileDialog({ children }) {
+export function ProfileDialog({ children, onProfileUpdated }) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [currentPassword, setCurrentPassword] = useState('');
@@ -48,7 +48,9 @@ export function ProfileDialog({ children }) {
       const userStr = localStorage.getItem('user');
       if (userStr) {
         const user = JSON.parse(userStr);
-        localStorage.setItem('user', JSON.stringify({ ...user, name, email }));
+        const updatedUser = { ...user, name, email };
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+        if (onProfileUpdated) onProfileUpdated(updatedUser);
       }
 
       toast.success('Perfil atualizado com sucesso!');

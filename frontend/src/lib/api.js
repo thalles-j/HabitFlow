@@ -1,5 +1,5 @@
 export async function api(path, options = {}) {
-  const API_BASE = 'http://localhost:4000/api';
+  const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
   const token = localStorage.getItem('token');
   const headers = {
     'Content-Type': 'application/json',
@@ -30,7 +30,7 @@ export const Api = {
   put: (path, body) => api(path, { method: 'PUT', body: JSON.stringify(body) }),
   del: (path) => api(path, { method: 'DELETE' }),
 };
-const API_BASE = 'http://localhost:4000/api';
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
 
 export async function apiFetch(path, options = {}) {
   const token = localStorage.getItem('token');
