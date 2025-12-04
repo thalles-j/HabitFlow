@@ -20,7 +20,7 @@ const summaryDates = generateSummaryDates()
 const minimumSummaryDatesSize = 18 * 7 // 18 weeks
 const amountOfDaysToFill = minimumSummaryDatesSize - summaryDates.length
 
-export function SummaryTable({ onDateClick, selectedDate, onLoaded }) {
+export function SummaryTable({ onDateClick, selectedDate, onLoaded, refreshTrigger }) {
   const [summary, setSummary] = useState(null)
   const scrollRef = useRef(null)
   const [isDown, setIsDown] = useState(false)
@@ -33,7 +33,7 @@ export function SummaryTable({ onDateClick, selectedDate, onLoaded }) {
       else setSummary([])
       if (onLoaded) onLoaded();
     })
-  }, [])
+  }, [refreshTrigger])
 
   if (!summary) {
     return null;

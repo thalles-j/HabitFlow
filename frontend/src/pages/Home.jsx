@@ -63,7 +63,7 @@ export function Home() {
         <Header onHabitCreated={handleHabitCreated} />
 
         <SummaryTable 
-          key={refreshKey} 
+          refreshTrigger={refreshKey} 
           onDateClick={handleDateClick} 
           selectedDate={selectedDate} 
           onLoaded={() => handleLoaded('summary')}
