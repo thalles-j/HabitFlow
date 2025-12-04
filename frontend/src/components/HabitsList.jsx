@@ -5,8 +5,9 @@ import { HabitCheckbox } from './HabitCheckbox';
 import { toast } from 'sonner';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import * as Dialog from '@radix-ui/react-dialog';
+import { OrbitProgress } from 'react-loading-indicators';
 
-export function HabitsList({ date, onCompletedChanged, onDayCompleted }) {
+export function HabitsList({ date, onCompletedChanged, onDayCompleted, onLoaded }) {
   const [habitsInfo, setHabitsInfo] = useState()
   const [currentPage, setCurrentPage] = useState(1);
   const [habitToDelete, setHabitToDelete] = useState(null);
@@ -24,6 +25,7 @@ export function HabitsList({ date, onCompletedChanged, onDayCompleted }) {
         onCompletedChanged(response.completedHabits.length, response.possibleHabits.length)
         setCurrentPage(1); // Reset page on date change
       }
+      if (onLoaded) onLoaded();
     })
   }, [date])
 
@@ -94,7 +96,7 @@ export function HabitsList({ date, onCompletedChanged, onDayCompleted }) {
   }
 
   if (!habitsInfo) {
-    return <div className="text-zinc-500">Carregando hábitos...</div>
+    return null;
   }
 
   const totalPages = Math.ceil(habitsInfo.possibleHabits.length / itemsPerPage);
