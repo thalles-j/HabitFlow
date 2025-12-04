@@ -1,0 +1,30 @@
+{
+  "name": "habitflow",
+  "version": "1.0.0",
+  "description": "",
+  "homepage": "https://github.com/thalles-j/HabitFlow#readme",
+  "bugs": {
+    "url": "https://github.com/thalles-j/HabitFlow/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thalles-j/HabitFlow.git"
+  },
+  "license": "ISC",
+  "author": "Thalles_Jose",
+  "type": "commonjs",
+  "main": "index.js",
+  "private": true,
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "concurrently \"npm --prefix backend run dev\" \"npm --prefix frontend run dev\"",
+    "install:all": "npm --prefix backend install; npm --prefix frontend install",
+    "prisma:generate": "npm --prefix backend run prisma:generate",
+    "prisma:migrate": "npm --prefix backend run prisma:migrate",
+    "prisma:seed": "npm --prefix backend run prisma:seed",
+    "sonar": "npm --prefix backend run sonar"
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.0"
+  }
+}
