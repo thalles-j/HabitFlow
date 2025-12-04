@@ -14,15 +14,39 @@ export function HabitsList({ date, onCompletedChanged, onDayCompleted, onLoaded 
   const itemsPerPage = 5;
 
   useEffect(() => {
+    setHabitsInfo(null); // Clear habits info to show loading state
     // Send date as YYYY-MM-DD to avoid timezone issues
     const dateString = dayjs(date).format('YYYY-MM-DD');
     apiFetch(`/day?date=${dateString}`).then(response => {
       if (response) {
         // Sort by creation date descending (recent first)
-        response.possibleHabits.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        response.possibleHabits.sort((a, b) => {
+          const dateA = new Date(a.created_at);
+          const dateB = new Date(b.created_at);
+          // If dates are valid, sort by date
+          if (!isNaN(dateA.getTime()) && !isNaN(dateB.getTime())) {
+            return dateB - dateA;
+          }
+          // Fallback: sort by ID descending (assuming newer items have higher IDs/lexicographical order)
+          if (a.id && b.id) {
+             return b.id > a.id ? 1 : -1;
+          }
+          return 0;
+        });
         
-        setHabitsInfo(response)
-        onCompletedChanged(response.completedHabits.length, response.possibleHabits.length)
+        // Filter completed habits to ensure they exist in possible habits
+        // This prevents "ghost" progress from habits that were completed but are no longer available for this day
+        const validCompletedHabits = response.completedHabits.filter(id => 
+          response.possibleHabits.some(h => h.id === id)
+        );
+
+        const cleanResponse = {
+          ...response,
+          completedHabits: validCompletedHabits
+        };
+        
+        setHabitsInfo(cleanResponse)
+        onCompletedChanged(validCompletedHabits.length, response.possibleHabits.length)
         setCurrentPage(1); // Reset page on date change
       }
       if (onLoaded) onLoaded();
@@ -96,7 +120,11 @@ export function HabitsList({ date, onCompletedChanged, onDayCompleted, onLoaded 
   }
 
   if (!habitsInfo) {
-    return null;
+    return (
+      <div className="flex justify-center items-center h-32 w-full">
+        <OrbitProgress color="#d35eff" size="small" text="" textColor="#20017e" />
+      </div>
+    )
   }
 
   const totalPages = Math.ceil(habitsInfo.possibleHabits.length / itemsPerPage);

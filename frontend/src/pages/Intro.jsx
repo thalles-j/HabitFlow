@@ -60,7 +60,7 @@ export function Intro() {
               </button>
             ) : (
               <>
-                <button onClick={() => navigate('/login')} className="text-zinc-400 hover:text-white font-medium text-sm transition-colors hidden sm:block">
+                <button onClick={() => navigate('/login')} className="text-zinc-400 hover:text-white font-medium text-sm transition-colors">
                   Já tenho conta
                 </button>
                 <button 

@@ -34,6 +34,8 @@ export function Home() {
 
   const handleDateClick = (date) => {
     setSelectedDate(date);
+    setCompletedCount(0);
+    setTotalCount(0);
   };
 
   const handleCompletedChanged = (completed, total) => {
@@ -49,7 +51,7 @@ export function Home() {
 
   const dateTitle = dayjs(selectedDate).format('DD/MM');
   const weekDay = dayjs(selectedDate).format('dddd');
-  const percentage = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+  const percentage = totalCount > 0 ? Math.min(100, Math.round((completedCount / totalCount) * 100)) : 0;
 
   return (
     <div className="min-h-screen bg-[#09090A] flex flex-col items-center text-white font-sans selection:bg-violet-500 selection:text-white relative">

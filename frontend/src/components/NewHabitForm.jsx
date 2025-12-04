@@ -30,21 +30,23 @@ export function NewHabitForm({ onSuccess }) {
 
     if (!isRecurring) {
         if (!specificDate) {
-          toast.error("Informe a data da tarefa.");
-          return;
-        }
-        
-        // Prevent past dates
-        const selectedDate = new Date(specificDate + 'T00:00:00');
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
+          // Default to today if no date is provided (Local Time)
+          const today = new Date();
+          const offset = today.getTimezoneOffset() * 60000;
+          const localToday = new Date(today.getTime() - offset);
+          finalSpecificDate = localToday.toISOString().split('T')[0];
+        } else {
+          // Prevent past dates
+          const selectedDate = new Date(specificDate + 'T00:00:00');
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
 
-        if (selectedDate < today) {
-          toast.error("Não é possível criar hábitos no passado.");
-          return;
+          if (selectedDate < today) {
+            toast.error("Não é possível criar hábitos no passado.");
+            return;
+          }
+          finalSpecificDate = specificDate;
         }
-
-        finalSpecificDate = specificDate;
     } else {
         if (frequency === 'daily') {
             finalWeekDays = [0, 1, 2, 3, 4, 5, 6];
@@ -71,14 +73,15 @@ export function NewHabitForm({ onSuccess }) {
           title,
           weekDays: finalWeekDays,
           monthlyDay: finalMonthlyDay,
-          specificDate: finalSpecificDate,
+          // Append noon time to prevent timezone shifts (UTC midnight -> previous day in Americas)
+          specificDate: finalSpecificDate ? `${finalSpecificDate}T12:00:00` : null,
           timeStart,
           timeEnd,
         }),
       })
 
       setTitle('')
-      setWeekDays([])
+      setWeekDays([0, 1, 2, 3, 4, 5, 6])
       setMonthlyDay('')
       setSpecificDate('')
       setTimeStart('')

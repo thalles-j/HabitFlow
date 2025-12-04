@@ -18,8 +18,23 @@ export function ScheduledHabitsList({ onLoaded }) {
 
   useEffect(() => {
     apiFetch('/habits').then(response => {
-      if (response) setHabits(response);
-      else setHabits([]);
+      if (response) {
+        // Sort by creation date descending (recent first)
+        response.sort((a, b) => {
+          const dateA = new Date(a.created_at);
+          const dateB = new Date(b.created_at);
+          if (!isNaN(dateA.getTime()) && !isNaN(dateB.getTime())) {
+            return dateB - dateA;
+          }
+          if (a.id && b.id) {
+             return b.id > a.id ? 1 : -1;
+          }
+          return 0;
+        });
+        setHabits(response);
+      } else {
+        setHabits([]);
+      }
       if (onLoaded) onLoaded();
     });
   }, []);
@@ -69,7 +84,9 @@ export function ScheduledHabitsList({ onLoaded }) {
 
   function getFrequencyString(habit) {
     if (habit.specific_date) {
-      return dayjs(habit.specific_date).format('DD/MM/YYYY');
+      // Extract YYYY-MM-DD part to avoid timezone shifts when parsing
+      const datePart = String(habit.specific_date).split('T')[0];
+      return dayjs(datePart).format('DD/MM/YYYY');
     }
 
     if (habit.monthly_day) {
