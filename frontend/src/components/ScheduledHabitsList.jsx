@@ -4,11 +4,12 @@ import { apiFetch } from '../lib/api';
 import * as Dialog from '@radix-ui/react-dialog';
 import { toast } from 'sonner';
 import dayjs from 'dayjs';
+import { OrbitProgress } from 'react-loading-indicators';
 
 const weekDayNames = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 
-export function ScheduledHabitsList() {
-  const [habits, setHabits] = useState([]);
+export function ScheduledHabitsList({ onLoaded }) {
+  const [habits, setHabits] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [habitToDelete, setHabitToDelete] = useState(null);
   const [filter, setFilter] = useState('all'); // 'all', 'recurring', 'one-time'
@@ -18,16 +19,18 @@ export function ScheduledHabitsList() {
   useEffect(() => {
     apiFetch('/habits').then(response => {
       if (response) setHabits(response);
+      else setHabits([]);
+      if (onLoaded) onLoaded();
     });
   }, []);
 
-  const filteredHabits = habits.filter(h => {
+  const filteredHabits = habits ? habits.filter(h => {
     const isOneTime = !!h.specific_date;
     if (filter === 'all') return true;
     if (filter === 'recurring') return !isOneTime;
     if (filter === 'one-time') return isOneTime;
     return true;
-  });
+  }) : [];
 
   const totalPages = Math.ceil(filteredHabits.length / itemsPerPage);
 
@@ -36,6 +39,10 @@ export function ScheduledHabitsList() {
       setCurrentPage(totalPages);
     }
   }, [filteredHabits.length, totalPages, currentPage]);
+
+  if (!habits) {
+    return null;
+  }
 
   const startIndex = (currentPage - 1) * itemsPerPage;
   const currentHabits = filteredHabits.slice(startIndex, startIndex + itemsPerPage);

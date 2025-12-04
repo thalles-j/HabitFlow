@@ -10,7 +10,7 @@ export function Header({ onHabitCreated }) {
   const [userName, setUserName] = useState('');
   const [isNewHabitModalOpen, setIsNewHabitModalOpen] = useState(false);
 
-  useEffect(() => {
+  const loadUser = () => {
     const user = localStorage.getItem('user');
     if (user) {
       try {
@@ -18,6 +18,10 @@ export function Header({ onHabitCreated }) {
         setUserName(parsedUser.name);
       } catch (e) {}
     }
+  };
+
+  useEffect(() => {
+    loadUser();
   }, []);
 
   const handleSuccess = () => {
@@ -40,7 +44,7 @@ export function Header({ onHabitCreated }) {
 
       <div className="flex items-center gap-6">
         {/* Perfil do Usuário */}
-        <ProfileDialog>
+        <ProfileDialog onProfileUpdated={loadUser}>
           <button className="flex items-center gap-3 hover:opacity-80 transition-opacity focus:outline-none">
             <div className="flex flex-col items-end hidden sm:flex">
               <span className="text-sm font-semibold text-zinc-200">{userName || 'Visitante'}</span>
