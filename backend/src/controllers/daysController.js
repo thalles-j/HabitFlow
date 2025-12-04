@@ -98,7 +98,17 @@ export async function getDay(req, res) {
           {
             specific_date: parsedDate.toDate()
           }
-        ]
+        ],
+        NOT: {
+          hides: {
+            some: {
+              date: parsedDate.toDate()
+            }
+          }
+        }
+      },
+      include: {
+        weekDays: true,
       }
     })
 

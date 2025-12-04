@@ -28,8 +28,19 @@ model Habit {
   specific_date DateTime?
   time_start String?
   time_end   String?
+  hides      HabitHide[]
 
   @@map("habits")
+}
+
+model HabitHide {
+  id        String   @id @default(uuid())
+  habit_id  String
+  date      DateTime
+  habit     Habit    @relation(fields: [habit_id], references: [id], onDelete: Cascade)
+
+  @@unique([habit_id, date])
+  @@map("habit_hides")
 }
 
 model HabitWeekDays {

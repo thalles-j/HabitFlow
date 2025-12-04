@@ -17,8 +17,16 @@ export function HabitsList({ date, onCompletedChanged, onDayCompleted }) {
     const dateString = dayjs(date).format('YYYY-MM-DD');
     apiFetch(`/day?date=${dateString}`).then(response => {
       if (response) {
-        // Sort by creation date descending (recent first)
-        response.possibleHabits.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        // Sort: One-time habits first, then by creation date
+        response.possibleHabits.sort((a, b) => {
+          const aIsOneTime = !!a.specific_date;
+          const bIsOneTime = !!b.specific_date;
+
+          if (aIsOneTime && !bIsOneTime) return -1;
+          if (!aIsOneTime && bIsOneTime) return 1;
+
+          return new Date(b.created_at) - new Date(a.created_at);
+        });
         
         setHabitsInfo(response)
         onCompletedChanged(response.completedHabits.length, response.possibleHabits.length)
@@ -72,9 +80,20 @@ export function HabitsList({ date, onCompletedChanged, onDayCompleted }) {
     if (!habitToDelete) return;
 
     try {
-      await apiFetch(`/habits/${habitToDelete.id}`, {
-        method: 'DELETE',
-      });
+      const isRecurring = !habitToDelete.specific_date;
+
+      if (isRecurring) {
+         // Hide for this day
+         await apiFetch(`/habits/${habitToDelete.id}/hide`, {
+            method: 'PATCH',
+            body: JSON.stringify({ date: dayjs(date).format('YYYY-MM-DD') })
+         });
+      } else {
+         // Delete permanently
+         await apiFetch(`/habits/${habitToDelete.id}`, {
+            method: 'DELETE',
+         });
+      }
       
       const newPossibleHabits = habitsInfo.possibleHabits.filter(h => h.id !== habitToDelete.id);
       const newCompletedHabits = habitsInfo.completedHabits.filter(id => id !== habitToDelete.id);
@@ -85,7 +104,7 @@ export function HabitsList({ date, onCompletedChanged, onDayCompleted }) {
       });
       
       onCompletedChanged(newCompletedHabits.length, newPossibleHabits.length);
-      toast.success('Hábito excluído!');
+      toast.success(isRecurring ? 'Hábito removido deste dia!' : 'Hábito excluído!');
       setHabitToDelete(null);
     } catch (error) {
       console.error("Failed to delete habit:", error);

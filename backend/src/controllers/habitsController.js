@@ -163,3 +163,62 @@ export async function listHabits(req, res) {
   })
   res.json(habits)
 }
+
+export async function hideHabit(req, res) {
+  try {
+    const { id } = req.params;
+    const { date } = req.body;
+
+    if (!date) {
+      return res.status(400).json({ message: 'Missing date' });
+    }
+
+    const hideDate = dayjs(date).startOf('day').toDate();
+
+    await prisma.habitHide.create({
+      data: {
+        habit_id: id,
+        date: hideDate,
+      }
+    });
+
+    res.status(200).send();
+  } catch (err) {
+    res.status(400).json({ error: 'Failed to hide habit', details: err.message });
+  }
+}
+
+export async function updateHabit(req, res) {
+  try {
+    const { id } = req.params;
+    const { title, weekDays, monthlyDay, specificDate, timeStart, timeEnd } = req.body;
+
+    if (!title) {
+      return res.status(400).json({ message: 'Missing title' });
+    }
+
+    const updateData = {
+      title,
+      time_start: timeStart,
+      time_end: timeEnd,
+      monthly_day: monthlyDay || null,
+      specific_date: specificDate ? dayjs(specificDate).startOf('day').toDate() : null,
+      weekDays: {
+        deleteMany: {},
+      }
+    };
+
+    if (weekDays && weekDays.length > 0) {
+      updateData.weekDays.create = weekDays.map(weekDay => ({ week_day: weekDay }));
+    }
+
+    const habit = await prisma.habit.update({
+      where: { id },
+      data: updateData,
+    });
+
+    res.json(habit);
+  } catch (err) {
+    res.status(400).json({ error: 'Failed to update habit', details: err.message });
+  }
+}

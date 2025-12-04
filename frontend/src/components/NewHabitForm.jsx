@@ -11,7 +11,7 @@ export function NewHabitForm({ onSuccess }) {
   const [frequency, setFrequency] = useState('daily'); // daily, weekly, monthly
   const [weekDays, setWeekDays] = useState([0, 1, 2, 3, 4, 5, 6]); // Default to all days for daily
   const [monthlyDay, setMonthlyDay] = useState('');
-  const [specificDate, setSpecificDate] = useState('');
+  const [specificDate, setSpecificDate] = useState(new Date().toISOString().split('T')[0]);
   const [timeStart, setTimeStart] = useState('');
   const [timeEnd, setTimeEnd] = useState('');
 
@@ -80,7 +80,7 @@ export function NewHabitForm({ onSuccess }) {
       setTitle('')
       setWeekDays([])
       setMonthlyDay('')
-      setSpecificDate('')
+      setSpecificDate(new Date().toISOString().split('T')[0])
       setTimeStart('')
       setTimeEnd('')
       setIsRecurring(true)
@@ -88,7 +88,6 @@ export function NewHabitForm({ onSuccess }) {
 
       toast.success('Hábito criado com sucesso!')
       if (onSuccess) onSuccess();
-      window.location.reload();
     } catch (error) {
       toast.error("Erro ao criar hábito: " + error.message);
     }
