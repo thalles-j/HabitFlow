@@ -7,7 +7,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { OrbitProgress } from 'react-loading-indicators';
 
-export function HabitsList({ date, onCompletedChanged, onDayCompleted, onLoaded }) {
+export function HabitsList({ date, onCompletedChanged, onDayCompleted, onLoaded, onSummaryRefresh }) {
   const [habitsInfo, setHabitsInfo] = useState()
   const [currentPage, setCurrentPage] = useState(1);
   const [habitToDelete, setHabitToDelete] = useState(null);
@@ -19,6 +19,21 @@ export function HabitsList({ date, onCompletedChanged, onDayCompleted, onLoaded 
     const dateString = dayjs(date).format('YYYY-MM-DD');
     apiFetch(`/day?date=${dateString}`).then(response => {
       if (response) {
+        // Filter possible habits to ensure they were created on or before the selected date
+        // This prevents habits created TODAY from appearing in YESTERDAY's list (and lowering the percentage)
+        const selectedDateEnd = dayjs(date).endOf('day');
+        response.possibleHabits = response.possibleHabits.filter(habit => {
+            const isCreatedBefore = dayjs(habit.created_at).isBefore(selectedDateEnd);
+            
+            // Filter out hidden habits (if the backend returns this relation)
+            // This handles the "Delete from day" logic where a habit is hidden for a specific date
+            const isHidden = habit.habitHides?.some(hide => 
+                dayjs(hide.date).isSame(date, 'day')
+            );
+
+            return isCreatedBefore && !isHidden;
+        });
+
         // Sort by creation date descending (recent first)
         response.possibleHabits.sort((a, b) => {
           const dateA = new Date(a.created_at);
@@ -79,9 +94,13 @@ export function HabitsList({ date, onCompletedChanged, onDayCompleted, onLoaded 
       await apiFetch(`/habits/${habitId}/toggle`, {
         method: 'PATCH',
         body: JSON.stringify({
-          date: dayjs(date).format('YYYY-MM-DD') // Send the date being toggled
+          date: dayjs(date).format('YYYY-MM-DD') + 'T00:00:00' // Force local midnight
         })
       })
+      
+      // Refresh summary table only after successful API call to avoid race conditions
+      if (onSummaryRefresh) onSummaryRefresh();
+      
     } catch (error) {
       console.error("Failed to toggle habit:", error)
       // Revert on error
@@ -90,7 +109,7 @@ export function HabitsList({ date, onCompletedChanged, onDayCompleted, onLoaded 
         completedHabits: habitsInfo.completedHabits, // Revert to original
       })
       onCompletedChanged(habitsInfo.completedHabits.length, habitsInfo.possibleHabits.length)
-      toast.error("Erro ao atualizar hábito. Tente novamente.")
+      toast.error(`Erro ao atualizar hábito: ${error.message}`)
     }
   }
 

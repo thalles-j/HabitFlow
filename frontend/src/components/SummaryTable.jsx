@@ -62,17 +62,17 @@ export function SummaryTable({ onDateClick, selectedDate, onLoaded, refreshTrigg
   }
 
   return (
-    <div className="w-full flex flex-col items-center mb-8 md:mb-12">
+    <div className="w-full flex flex-col items-center mt-3 mb-2 md:mt-0 md:mb-12">
       {/* Container Flex para alinhar Dias da Semana (Fixo) + Calendário (Scroll) */}
-      <div className="w-full flex gap-3 justify-start md:justify-center px-2 md:px-0">
+      <div className="w-full flex gap-2 md:gap-3 justify-start md:justify-center px-2 md:px-0">
         
         {/* Dias da Semana Fixos */}
-        <div className="grid grid-rows-7 gap-2 md:gap-3 pr-2 select-none flex-shrink-0 pt-2">
+        <div className="grid grid-rows-7 gap-1.5 md:gap-3 pr-2 select-none flex-shrink-0 pt-2">
           {weekDays.map((weekDay, i) => {
             return (
               <div 
                 key={`${weekDay}-${i}`} 
-                className="text-zinc-400 text-lg md:text-xl font-bold h-8 w-8 md:h-10 md:w-10 flex items-center justify-center"
+                className="text-zinc-400 text-xs md:text-base font-bold h-6 w-6 md:h-9 md:w-9 flex items-center justify-center"
               >
                 {weekDay}
               </div>
@@ -87,12 +87,12 @@ export function SummaryTable({ onDateClick, selectedDate, onLoaded, refreshTrigg
           onMouseLeave={handleMouseLeave}
           onMouseUp={handleMouseUp}
           onMouseMove={handleMouseMove}
-          className="overflow-x-auto p-2 pb-4 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden cursor-grab active:cursor-grabbing"
+          className="overflow-x-auto p-2 pb-2 md:pb-4 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden cursor-grab active:cursor-grabbing"
         >
-          <div className="grid grid-rows-7 grid-flow-col gap-2 md:gap-3">
+          <div className="grid grid-rows-7 grid-flow-col gap-1.5 md:gap-3">
             {summaryDates.map(date => {
               const dayInSummary = summary.find(day => {
-                return dayjs(date).isSame(day.date, 'day')
+                return dayjs(date).format('YYYY-MM-DD') === dayjs(day.date).utc().format('YYYY-MM-DD')
               })
 
               const isSelected = selectedDate && dayjs(date).isSame(selectedDate, 'day');
@@ -115,7 +115,7 @@ export function SummaryTable({ onDateClick, selectedDate, onLoaded, refreshTrigg
               return (
                 <div 
                   key={i} 
-                  className="w-8 h-8 md:w-10 md:h-10 bg-zinc-900 border-2 border-zinc-800 rounded-lg opacity-40 cursor-not-allowed"
+                  className="w-6 h-6 md:w-9 md:h-9 bg-zinc-900 border-2 border-zinc-800 rounded-lg opacity-40 cursor-not-allowed"
                 />
               )
             })}
@@ -124,18 +124,22 @@ export function SummaryTable({ onDateClick, selectedDate, onLoaded, refreshTrigg
       </div>
 
       {/* Legenda */}
-      <div className="flex items-center justify-center gap-4 mt-2 w-full">
+      <div className="flex flex-wrap items-center justify-center gap-3 md:gap-4 mt-2 w-full px-4">
         <div className="flex items-center gap-2">
           <div className="w-4 h-4 rounded bg-zinc-900 border border-zinc-800" />
-          <span className="text-zinc-400 text-xs md:text-sm font-medium">Não iniciado</span>
+          <span className="text-zinc-400 text-xs md:text-sm font-medium">Vazio</span>
         </div>
         <div className="flex items-center gap-2">
           <div className="w-4 h-4 rounded bg-violet-700 border border-violet-600" />
           <span className="text-zinc-400 text-xs md:text-sm font-medium">Em andamento</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 rounded bg-violet-500 border border-violet-400" />
+          <div className="w-4 h-4 rounded bg-green-500 border border-green-400" />
           <span className="text-zinc-400 text-xs md:text-sm font-medium">Concluído</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-4 h-4 rounded bg-white border border-white text-black flex items-center justify-center text-[10px] font-bold"></div>
+          <span className="text-zinc-400 text-xs md:text-sm font-medium">Selecionado</span>
         </div>
         <div className="flex items-center gap-2">
           <div className="w-4 h-4 rounded bg-zinc-900 border border-zinc-800 ring-2 ring-blue-500 ring-offset-1 ring-offset-background" />

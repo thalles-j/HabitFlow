@@ -41,12 +41,16 @@ export function Home() {
   const handleCompletedChanged = (completed, total) => {
     setCompletedCount(completed);
     setTotalCount(total);
-    setRefreshKey(prev => prev + 1); // Refresh summary table to show updated colors
+    // setRefreshKey is now handled by handleSummaryRefresh to avoid race conditions
+  };
+
+  const handleSummaryRefresh = () => {
+    setRefreshKey(prev => prev + 1);
   };
 
   const handleHabitCreated = () => {
     setHabitsListKey(prev => prev + 1); // Refresh sidebar list
-    setRefreshKey(prev => prev + 1); // Refresh summary table (if needed)
+    setRefreshKey(prev => prev + 1); // Refresh summary table
   };
 
   const dateTitle = dayjs(selectedDate).format('DD/MM');
@@ -86,7 +90,7 @@ export function Home() {
             {/* Barra de Progresso */}
             <div className="h-3 rounded-xl bg-zinc-700 w-full mb-4 overflow-hidden">
               <div 
-                className="h-full rounded-xl bg-violet-600 transition-all duration-500 shadow-[0_0_10px_#7c3aed]"
+                className={`h-full rounded-xl transition-all duration-500 ${percentage === 100 ? 'bg-green-500 shadow-[0_0_10px_#22c55e]' : 'bg-violet-600 shadow-[0_0_10px_#7c3aed]'}`}
                 style={{ width: `${percentage}%` }}
               />
             </div>
@@ -96,6 +100,7 @@ export function Home() {
               <HabitsList 
                 date={selectedDate} 
                 onCompletedChanged={handleCompletedChanged} 
+                onSummaryRefresh={handleSummaryRefresh}
                 onDayCompleted={() => setIsCompletionModalOpen(true)}
                 onLoaded={() => handleLoaded('habitsList')}
               />
