@@ -227,7 +227,7 @@ export function ScheduledHabitsList({ onLoaded }) {
                 <div className="flex items-center gap-1">
                   <button 
                     onClick={() => setHabitToEdit(habit)}
-                    className="p-2 text-zinc-600 hover:text-violet-400 hover:bg-zinc-800 rounded-lg transition-all opacity-100 md:opacity-0 md:group-hover:opacity-100 focus:opacity-100"
+                    className="p-2 text-zinc-600 hover:text-violet-400 hover:bg-zinc-800 rounded-lg transition-all"
                     title="Editar hábito"
                   >
                     <Pencil size={18} />
@@ -235,7 +235,7 @@ export function ScheduledHabitsList({ onLoaded }) {
 
                   <button 
                     onClick={() => setHabitToDelete(habit)}
-                    className="p-2 text-zinc-600 hover:text-red-400 hover:bg-zinc-800 rounded-lg transition-all opacity-100 md:opacity-0 md:group-hover:opacity-100 focus:opacity-100"
+                    className="p-2 text-zinc-600 hover:text-red-400 hover:bg-zinc-800 rounded-lg transition-all"
                     title="Excluir hábito"
                   >
                     <Trash2 size={18} />
