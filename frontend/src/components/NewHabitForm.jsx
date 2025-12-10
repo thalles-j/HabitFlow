@@ -1,4 +1,4 @@
-import { Check, ChevronDown, Calendar } from "lucide-react";
+import { Check, ChevronDown, Calendar, Loader2 } from "lucide-react";
 import React, { useState } from "react";
 import { apiFetch } from "../lib/api";
 import { toast } from "sonner";
@@ -14,14 +14,19 @@ export function NewHabitForm({ onSuccess }) {
   const [specificDate, setSpecificDate] = useState('');
   const [timeStart, setTimeStart] = useState('');
   const [timeEnd, setTimeEnd] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   async function createNewHabit(event) {
     event.preventDefault()
+
+    if (isLoading) return;
 
     if (!title) {
       toast.error("Informe o nome do hábito.");
       return;
     }
+
+    setIsLoading(true);
 
     // Logic to determine weekDays based on frequency
     let finalWeekDays = [];
@@ -43,6 +48,7 @@ export function NewHabitForm({ onSuccess }) {
 
           if (selectedDate < today) {
             toast.error("Não é possível criar hábitos no passado.");
+            setIsLoading(false);
             return;
           }
           finalSpecificDate = specificDate;
@@ -55,6 +61,7 @@ export function NewHabitForm({ onSuccess }) {
         } else if (frequency === 'monthly') {
             if (!monthlyDay || monthlyDay < 1 || monthlyDay > 31) {
               toast.error("Informe um dia do mês válido (1-31).");
+              setIsLoading(false);
               return;
             }
             finalMonthlyDay = parseInt(monthlyDay);
@@ -63,6 +70,7 @@ export function NewHabitForm({ onSuccess }) {
 
     if (isRecurring && frequency !== 'monthly' && finalWeekDays.length === 0) {
         toast.error("Selecione pelo menos um dia.");
+        setIsLoading(false);
         return;
     }
 
@@ -94,6 +102,8 @@ export function NewHabitForm({ onSuccess }) {
       window.location.reload();
     } catch (error) {
       toast.error("Erro ao criar hábito: " + error.message);
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -253,10 +263,20 @@ export function NewHabitForm({ onSuccess }) {
 
       <button 
         type="submit" 
-        className="mt-6 w-full p-4 rounded-lg bg-green-600 hover:bg-green-500 transition-colors font-semibold flex items-center justify-center gap-3 group"
+        disabled={isLoading}
+        className="mt-6 w-full p-4 rounded-lg bg-green-600 hover:bg-green-500 disabled:opacity-70 disabled:cursor-not-allowed transition-colors font-semibold flex items-center justify-center gap-3 group"
       >
-        <Check size={20} className="font-bold" />
-        Confirmar criação
+        {isLoading ? (
+          <>
+            <Loader2 size={20} className="animate-spin" />
+            Criando...
+          </>
+        ) : (
+          <>
+            <Check size={20} className="font-bold" />
+            Confirmar criação
+          </>
+        )}
       </button>
 
     </form>

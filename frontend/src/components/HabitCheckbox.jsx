@@ -1,7 +1,7 @@
 import React from 'react';
-import { Check, Calendar, Clock, Trash2 } from 'lucide-react';
+import { Check, Calendar, Clock, Trash2, Pencil } from 'lucide-react';
 
-export function HabitCheckbox({ title, time, checked, onCheckedChange, disabled, type = "recurring", onDelete }) {
+export function HabitCheckbox({ title, time, checked, onCheckedChange, disabled, type = "recurring", onDelete, onEdit }) {
   const isOneTime = type === 'one-time';
   
   const activeColorClass = isOneTime ? 'bg-sky-500 border-sky-500' : 'bg-green-500 border-green-500';
@@ -57,18 +57,33 @@ export function HabitCheckbox({ title, time, checked, onCheckedChange, disabled,
         </div>
       </div>
 
-      {onDelete && (
-        <button 
-          onClick={(e) => {
-            e.stopPropagation(); 
-            onDelete();
-          }}
-          className="p-2 text-zinc-500 hover:text-red-400 hover:bg-zinc-800 rounded-lg transition-all md:opacity-0 md:group-hover:opacity-100 focus:opacity-100"
-          title="Excluir de hoje"
-        >
-          <Trash2 size={18} />
-        </button>
-      )}
+      <div className="flex items-center gap-1">
+        {onEdit && (
+          <button 
+            onClick={(e) => {
+              e.stopPropagation(); 
+              onEdit();
+            }}
+            className="p-2 text-zinc-500 hover:text-violet-400 hover:bg-zinc-800 rounded-lg transition-all md:opacity-0 md:group-hover:opacity-100 focus:opacity-100"
+            title="Editar hábito"
+          >
+            <Pencil size={18} />
+          </button>
+        )}
+
+        {onDelete && (
+          <button 
+            onClick={(e) => {
+              e.stopPropagation(); 
+              onDelete();
+            }}
+            className="p-2 text-zinc-500 hover:text-red-400 hover:bg-zinc-800 rounded-lg transition-all md:opacity-0 md:group-hover:opacity-100 focus:opacity-100"
+            title="Excluir de hoje"
+          >
+            <Trash2 size={18} />
+          </button>
+        )}
+      </div>
     </div>
   )
 }

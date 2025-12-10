@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { MoreHorizontal, ChevronLeft, ChevronRight, Trash2, Calendar, Repeat, Check } from 'lucide-react';
+import { MoreHorizontal, ChevronLeft, ChevronRight, Trash2, Calendar, Repeat, Check, Pencil } from 'lucide-react';
 import { apiFetch } from '../lib/api';
 import * as Dialog from '@radix-ui/react-dialog';
 import { toast } from 'sonner';
 import dayjs from 'dayjs';
 import { OrbitProgress } from 'react-loading-indicators';
+import { NewHabitModal } from './NewHabitModal';
 
 const weekDayNames = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 
@@ -12,6 +13,7 @@ export function ScheduledHabitsList({ onLoaded }) {
   const [habits, setHabits] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [habitToDelete, setHabitToDelete] = useState(null);
+  const [habitToEdit, setHabitToEdit] = useState(null);
   const [filter, setFilter] = useState('all'); // 'all', 'recurring', 'one-time'
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const itemsPerPage = 5;
@@ -35,6 +37,9 @@ export function ScheduledHabitsList({ onLoaded }) {
       } else {
         setHabits([]);
       }
+      if (onLoaded) onLoaded();
+    }).catch(() => {
+      setHabits([]);
       if (onLoaded) onLoaded();
     });
   }, []);
@@ -82,6 +87,10 @@ export function ScheduledHabitsList({ onLoaded }) {
     }
   }
 
+  const handleEditSuccess = () => {
+    window.location.reload();
+  };
+
   function getFrequencyString(habit) {
     if (habit.specific_date) {
       // Extract YYYY-MM-DD part to avoid timezone shifts when parsing
@@ -107,6 +116,41 @@ export function ScheduledHabitsList({ onLoaded }) {
 
   return (
     <div className="bg-zinc-900 rounded-2xl p-6 border border-zinc-800 h-fit flex flex-col justify-between min-h-[300px]">
+      <NewHabitModal 
+        isOpen={!!habitToEdit} 
+        onClose={() => setHabitToEdit(null)} 
+        habitToEdit={habitToEdit}
+        onSuccess={handleEditSuccess}
+      />
+
+      <Dialog.Root open={!!habitToDelete} onOpenChange={(open) => !open && setHabitToDelete(null)}>
+        <Dialog.Portal>
+          <Dialog.Overlay className="w-screen h-screen bg-black/80 fixed inset-0 z-50" />
+          <Dialog.Content className="fixed p-8 bg-zinc-900 rounded-2xl w-full max-w-md top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 border border-zinc-800">
+            <Dialog.Title className="text-xl font-bold text-white mb-4">
+              Excluir Hábito?
+            </Dialog.Title>
+            <Dialog.Description className="text-zinc-400 mb-6">
+              Você tem certeza que deseja excluir o hábito <strong>{habitToDelete?.title}</strong>? Essa ação não pode ser desfeita.
+            </Dialog.Description>
+            
+            <div className="flex justify-end gap-4">
+              <Dialog.Close asChild>
+                <button className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded-lg font-semibold transition-colors">
+                  Cancelar
+                </button>
+              </Dialog.Close>
+              <button 
+                onClick={handleDelete}
+                className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg font-semibold transition-colors"
+              >
+                Sim, excluir
+              </button>
+            </div>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
+
       <div>
         <div className="flex items-center justify-between mb-6">
           <h3 className="font-bold text-zinc-200">Meus Hábitos</h3>
@@ -180,43 +224,23 @@ export function ScheduledHabitsList({ onLoaded }) {
                   </div>
                 </div>
                 
-                <Dialog.Root open={!!habitToDelete} onOpenChange={(open) => !open && setHabitToDelete(null)}>
-                  <Dialog.Trigger asChild>
-                    <button 
-                      onClick={() => setHabitToDelete(habit)}
-                      className="p-2 text-zinc-600 hover:text-red-400 hover:bg-zinc-800 rounded-lg transition-all opacity-100 md:opacity-0 md:group-hover:opacity-100 focus:opacity-100"
-                      title="Excluir hábito"
-                    >
-                      <Trash2 size={18} />
-                    </button>
-                  </Dialog.Trigger>
-                  
-                  <Dialog.Portal>
-                    <Dialog.Overlay className="w-screen h-screen bg-black/80 fixed inset-0 z-50" />
-                    <Dialog.Content className="fixed p-8 bg-zinc-900 rounded-2xl w-full max-w-md top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 border border-zinc-800">
-                      <Dialog.Title className="text-xl font-bold text-white mb-4">
-                        Excluir Hábito?
-                      </Dialog.Title>
-                      <Dialog.Description className="text-zinc-400 mb-6">
-                        Você tem certeza que deseja excluir o hábito <strong>{habitToDelete?.title}</strong>? Essa ação não pode ser desfeita.
-                      </Dialog.Description>
-                      
-                      <div className="flex justify-end gap-4">
-                        <Dialog.Close asChild>
-                          <button className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded-lg font-semibold transition-colors">
-                            Cancelar
-                          </button>
-                        </Dialog.Close>
-                        <button 
-                          onClick={handleDelete}
-                          className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg font-semibold transition-colors"
-                        >
-                          Sim, excluir
-                        </button>
-                      </div>
-                    </Dialog.Content>
-                  </Dialog.Portal>
-                </Dialog.Root>
+                <div className="flex items-center gap-1">
+                  <button 
+                    onClick={() => setHabitToEdit(habit)}
+                    className="p-2 text-zinc-600 hover:text-violet-400 hover:bg-zinc-800 rounded-lg transition-all opacity-100 md:opacity-0 md:group-hover:opacity-100 focus:opacity-100"
+                    title="Editar hábito"
+                  >
+                    <Pencil size={18} />
+                  </button>
+
+                  <button 
+                    onClick={() => setHabitToDelete(habit)}
+                    className="p-2 text-zinc-600 hover:text-red-400 hover:bg-zinc-800 rounded-lg transition-all opacity-100 md:opacity-0 md:group-hover:opacity-100 focus:opacity-100"
+                    title="Excluir hábito"
+                  >
+                    <Trash2 size={18} />
+                  </button>
+                </div>
               </div>
             );
           })}
