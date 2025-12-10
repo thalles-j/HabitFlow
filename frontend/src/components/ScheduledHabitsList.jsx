@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import dayjs from 'dayjs';
 import { OrbitProgress } from 'react-loading-indicators';
 import { NewHabitModal } from './NewHabitModal';
+import { sortHabits } from '../utils/habit-utils';
 
 const weekDayNames = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 
@@ -22,17 +23,7 @@ export function ScheduledHabitsList({ onLoaded }) {
     apiFetch('/habits').then(response => {
       if (response) {
         // Sort by creation date descending (recent first)
-        response.sort((a, b) => {
-          const dateA = new Date(a.created_at);
-          const dateB = new Date(b.created_at);
-          if (!isNaN(dateA.getTime()) && !isNaN(dateB.getTime())) {
-            return dateB - dateA;
-          }
-          if (a.id && b.id) {
-             return b.id > a.id ? 1 : -1;
-          }
-          return 0;
-        });
+        sortHabits(response);
         setHabits(response);
       } else {
         setHabits([]);

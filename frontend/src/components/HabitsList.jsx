@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { OrbitProgress } from 'react-loading-indicators';
+import { sortHabits } from '../utils/habit-utils';
 
 export function HabitsList({ date, onCompletedChanged, onDayCompleted, onLoaded, onSummaryRefresh }) {
   const [habitsInfo, setHabitsInfo] = useState()
@@ -35,19 +36,7 @@ export function HabitsList({ date, onCompletedChanged, onDayCompleted, onLoaded,
         });
 
         // Sort by creation date descending (recent first)
-        response.possibleHabits.sort((a, b) => {
-          const dateA = new Date(a.created_at);
-          const dateB = new Date(b.created_at);
-          // If dates are valid, sort by date
-          if (!isNaN(dateA.getTime()) && !isNaN(dateB.getTime())) {
-            return dateB - dateA;
-          }
-          // Fallback: sort by ID descending (assuming newer items have higher IDs/lexicographical order)
-          if (a.id && b.id) {
-             return b.id > a.id ? 1 : -1;
-          }
-          return 0;
-        });
+        sortHabits(response.possibleHabits);
         
         // Filter completed habits to ensure they exist in possible habits
         // This prevents "ghost" progress from habits that were completed but are no longer available for this day
@@ -65,7 +54,11 @@ export function HabitsList({ date, onCompletedChanged, onDayCompleted, onLoaded,
         setCurrentPage(1); // Reset page on date change
       }
       if (onLoaded) onLoaded();
-    })
+    }).catch((error) => {
+      console.error("Failed to fetch habits:", error);
+      toast.error("Erro ao carregar hábitos.");
+      if (onLoaded) onLoaded();
+    });
   }, [date])
 
   async function handleToggleHabit(habitId) {
