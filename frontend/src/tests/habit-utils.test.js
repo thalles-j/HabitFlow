@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { sortHabits } from './habit-utils';
+import { sortHabits } from '../utils/habit-utils';
 
 describe('sortHabits', () => {
   it('should sort habits by creation date descending (newest first)', () => {
