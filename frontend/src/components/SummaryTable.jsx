@@ -32,6 +32,9 @@ export function SummaryTable({ onDateClick, selectedDate, onLoaded, refreshTrigg
       if (response) setSummary(response)
       else setSummary([])
       if (onLoaded) onLoaded();
+    }).catch(() => {
+      setSummary([]);
+      if (onLoaded) onLoaded();
     })
   }, [refreshTrigger])
 
