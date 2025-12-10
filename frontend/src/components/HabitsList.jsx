@@ -192,17 +192,16 @@ export function HabitsList({ date, onCompletedChanged, onDayCompleted, onLoaded,
       {currentHabits.map(habit => {
         const isOneTime = !!habit.specific_date;
         return (
-          <div key={habit.id} className="group/item">
-            <HabitCheckbox
-              title={habit.title}
-              time={habit.time_start ? (habit.time_end ? `${habit.time_start} - ${habit.time_end}` : `${habit.time_start}`) : null}
-              checked={habitsInfo.completedHabits.includes(habit.id)}
-              onCheckedChange={() => handleToggleHabit(habit.id)}
-              disabled={false}
-              type={isOneTime ? 'one-time' : 'recurring'}
-              onDelete={() => setHabitToDelete(habit)}
-            />
-          </div>
+          <HabitCheckbox
+            key={habit.id}
+            title={habit.title}
+            time={habit.time_start ? (habit.time_end ? `${habit.time_start} - ${habit.time_end}` : `${habit.time_start}`) : null}
+            checked={habitsInfo.completedHabits.includes(habit.id)}
+            onCheckedChange={() => handleToggleHabit(habit.id)}
+            disabled={false}
+            type={isOneTime ? 'one-time' : 'recurring'}
+            onDelete={() => setHabitToDelete(habit)}
+          />
         )
       })}
       {habitsInfo.possibleHabits.length === 0 && (
