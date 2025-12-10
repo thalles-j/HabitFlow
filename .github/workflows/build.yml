@@ -24,6 +24,10 @@ jobs:
         working-directory: frontend
         run: npm install
 
+      - name: Run Tests and Generate Coverage
+        working-directory: frontend
+        run: npm run test:coverage
+
       - name: SonarQube Scan
         uses: SonarSource/sonarcloud-github-action@ffc3010689be73b8e5ae0c57ce35968afd7909e8
         env:
